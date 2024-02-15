@@ -1,0 +1,22 @@
+--TEMP TABLE
+DROP TABLE IF EXISTS #PercentPopulationVaccinated
+CREATE TABLE #PercentPopulationVaccinated
+(
+ continent nvarchar(255),
+ location nvarchar(255),
+ population numeric,
+ total_new_vac numeric
+)
+INSERT INTO #PercentPopulationVaccinated
+select distinct dea.continent,dea.location, dea.population,
+	SUM(CAST(vac.new_vaccinations as bigint)) OVER (partition by dea.location)as total_new_vaccinations
+from CovidPortfolio..CovidDeaths dea
+join CovidPortfolio..CovidVaccination vac
+on dea.location=vac.location
+	and dea.date=vac.date
+where dea.continent is not null	 and new_vaccinations is not null
+--order by 1 ,4 desc
+
+
+SELECT *
+FROM #PercentPopulationVaccinated
